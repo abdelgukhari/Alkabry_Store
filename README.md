@@ -5,7 +5,7 @@
 [![scikit-learn](https://img.shields.io/badge/scikit--learn-1.4.1-orange.svg)](https://scikit-learn.org/)
 [![Bootstrap](https://img.shields.io/badge/Bootstrap-5.3-purple.svg)](https://getbootstrap.com/)
 
-Полноценная электронная торговая платформа на Django, разработанная для сравнительного анализа пяти алгоритмов рекомендаций на воспроизводимом наборе данных о товарах моды (120 товаров, 500 пользователей, более 6 000 взаимодействий, источник — Kaggle).
+Полноценная электронная торговая платформа на Django, разработанная для сравнительного анализа пяти алгоритмов рекомендаций на воспроизводимом наборе данных о товарах моды. Основная команда для генерации данных и оценки алгоритмов — `generate_benchmark_data`.
 
 ---
 
@@ -17,12 +17,12 @@
 - [Системные требования](#системные-требования)
 - [Быстрый старт](#быстрый-старт)
 - [Подробная установка](#подробная-установка)
-- [Настройка PostgreSQL](#настройка-postgresql)
-- [Команды управления](#команды-управления)
+- [Команда generate_benchmark_data](#команда-generate_benchmark_data)
+- [Остальные команды управления](#остальные-команды-управления)
 - [Учётные данные](#учётные-данные)
 - [Структура проекта](#структура-проекта)
 - [Результаты оценки алгоритмов](#результаты-оценки-алгоритмов)
-- [Jupyter-ноутбуки](#jupyter-ноутбуки)
+- [Jupyter-ноутбук](#jupyter-ноутбук)
 - [Переменные окружения](#переменные-окружения)
 - [Развёртывание](#развёртывание)
 - [Устранение неполадок](#устранение-неполадок)
@@ -31,33 +31,26 @@
 
 ## Описание проекта
 
-Проект представляет собой исследовательскую платформу, сочетающую функциональный интернет-магазин с встроенным стендом для оценки алгоритмов рекомендаций. Все алгоритмы реализованы с нуля на базе библиотеки scikit-learn без использования специализированных фреймворков рекомендательных систем, что обеспечивает прозрачность и воспроизводимость экспериментов.
+Проект представляет собой исследовательскую платформу, сочетающую интернет-магазин с встроенным стендом для оценки алгоритмов рекомендаций. Все алгоритмы реализованы с нуля на базе библиотеки scikit-learn.
 
 ### Функциональность платформы
 
-- Каталог товаров с иерархическими категориями и фильтрацией по атрибутам
-- Корзина покупок с динамическими обновлениями через HTMX без перезагрузки страницы
-- Аутентификация пользователей, личный кабинет и история заказов
-- Система отзывов и рейтингов товаров
-- Полный цикл оформления заказа с контролем остатков
+- Каталог товаров с иерархическими категориями и фильтрацией
+- Корзина покупок с динамическими обновлениями через HTMX
+- Аутентификация пользователей, личный кабинет, история заказов
+- Система отзывов и рейтингов
+- Полный цикл оформления заказа
 - Живой поиск с задержкой 300 мс
 - Многоязычный чат-ассистент (EN, ES, RU, AR)
 - Адаптивный интерфейс на Bootstrap 5
 
 ### Система рекомендаций
 
-- Пять независимых алгоритмов рекомендаций, реализованных средствами scikit-learn
-- Персонализированные рекомендации в реальном времени на главной странице и карточке товара
-- Отслеживание событий взаимодействия: просмотр, клик, добавление в корзину, покупка, отзыв
-- Полный набор метрик качества: Precision@10, Recall@10, NDCG@10, MRR, Hit Rate, F1, Diversity, Coverage
-- Трёхкратная перекрёстная проверка (сиды: 2026, 2027, 2028) для статистически устойчивых результатов
-
-### Аналитика и сравнение
-
-- Панель мониторинга производительности алгоритмов с визуализацией через Chart.js
-- Сравнение алгоритмов в режиме реального времени с историческим трекингом
-- Отслеживание CTR и коэффициента конверсии
-- Автоматическая генерация рейтинговых отчётов
+- Пять независимых алгоритмов рекомендаций
+- Персонализированные рекомендации в реальном времени
+- Отслеживание событий: просмотр, клик, добавление в корзину, покупка, отзыв
+- Метрики качества: Precision@10, Recall@10, NDCG@10, MRR, Hit Rate, F1
+- Трёхкратная перекрёстная проверка (сиды: 2026, 2027, 2028)
 
 ---
 
@@ -66,12 +59,12 @@
 | N | Алгоритм | Подход | Вес в гибриде |
 |---|----------|--------|---------------|
 | 1 | Контентная фильтрация | TF-IDF + косинусное сходство по признакам товара | 10% |
-| 2 | Коллаборативная (по пользователям) | Матрица сходства пользователей; товары, понравившиеся похожим пользователям | 35% |
-| 3 | Коллаборативная (по товарам) | Матрица сходства товаров; похожие позиции | 40% |
-| 4 | SVD (матричная факторизация) | TruncatedSVD; скрытые факторы пользователь-товар | 15% |
-| 5 | Гибридная система | Взвешенный ансамбль четырёх алгоритмов выше | — |
+| 2 | Коллаборативная (по пользователям) | Матрица сходства пользователей | 35% |
+| 3 | Коллаборативная (по товарам) | Матрица сходства товаров | 40% |
+| 4 | SVD | TruncatedSVD, скрытые факторы | 15% |
+| 5 | Гибридная система | Взвешенный ансамбль четырёх алгоритмов | — |
 
-Формула итоговой точности, применяемая для ранжирования алгоритмов:
+Формула итоговой точности:
 
 ```
 Accuracy = Hit Rate * 0.50 + NDCG * 0.30 + Precision * 0.20
@@ -84,49 +77,37 @@ Accuracy = Hit Rate * 0.50 + NDCG * 0.30 + Precision * 0.20
 | Уровень | Технология |
 |---------|-----------|
 | Бэкенд | Django 5.0.4 |
-| База данных | SQLite (разработка) / PostgreSQL 14+ (продакшн) |
+| База данных | SQLite / PostgreSQL 14+ |
 | Фронтенд | Django Templates, Bootstrap 5.3 |
 | Динамический интерфейс | HTMX 1.9.10 |
 | Визуализация | Chart.js 4.4.0 |
 | ML-библиотеки | scikit-learn 1.4, numpy 1.26, pandas 2.2, scipy 1.12 |
-| Формы | django-crispy-forms, crispy-bootstrap5 |
-| Фильтрация | django-filter |
-| Аналитические ноутбуки | Jupyter, matplotlib |
 
 ---
 
 ## Системные требования
 
 - Python 3.12 и выше
-- pip
-- PostgreSQL 14+ (опционально; по умолчанию используется SQLite)
-- Набор данных Kaggle `styles.csv` (необходим для генерации бенчмарк-данных)
+- Набор данных Kaggle `styles.csv` (Fashion Product Images Small)
 
 ---
 
 ## Быстрый старт
 
 ```bash
-# 1. Установить зависимости
 pip install -r requirements.txt
-
-# 2. Применить миграции
 python manage.py migrate
-
-# 3. Сгенерировать бенчмарк-данные (необходим CSV-файл Kaggle, см. ниже)
 python manage.py generate_benchmark_data
-
-# 4. Запустить сервер разработки
 python manage.py runserver
 ```
 
-Открыть в браузере: http://localhost:8000
+Открыть: http://localhost:8000
 
 ---
 
 ## Подробная установка
 
-### 1. Клонирование репозитория и установка зависимостей
+### 1. Клонирование и установка зависимостей
 
 ```bash
 git clone https://github.com/abdelgukhari/kabbary_store_main.git
@@ -142,64 +123,34 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-Устанавливаемые пакеты: Django 5.0.4, Pillow, crispy-bootstrap5, django-crispy-forms, django-filter, django-htmx, numpy, pandas, scipy, scikit-learn, python-decouple, psycopg2-binary.
-
 ### 2. Настройка окружения
 
 ```bash
 cp .env.example .env
-# Отредактировать .env согласно разделу «Переменные окружения»
+# Отредактировать .env
 ```
 
-### 3. Применение миграций
+### 3. Миграции
 
 ```bash
 python manage.py migrate
 ```
 
-### 4. Генерация бенчмарк-данных
+### 4. Получение данных Kaggle
 
-Команда импортирует реальные товары из CSV-файла Kaggle и запускает оценку всех пяти алгоритмов методом трёхкратной перекрёстной проверки.
-
-**Получение набора данных.** Скачайте `styles.csv` из набора данных [Fashion Product Images Small](https://www.kaggle.com/datasets/paramaggarwal/fashion-product-images-small) на Kaggle и поместите файл по пути:
+Скачайте `styles.csv` из датасета [Fashion Product Images Small](https://www.kaggle.com/datasets/paramaggarwal/fashion-product-images-small) и поместите в:
 
 ```
 data/fashion-product-images-small/styles.csv
 ```
 
-**Запуск генерации:**
+### 5. Генерация бенчмарк-данных и оценка алгоритмов
 
 ```bash
-# По умолчанию: 120 товаров, 500 пользователей, 8 подкатегорий, 5% шума
 python manage.py generate_benchmark_data
-
-# Указать путь к CSV вручную
-python manage.py generate_benchmark_data --csv-file path/to/styles.csv
-
-# Изменить долю случайных взаимодействий
-python manage.py generate_benchmark_data --noise-pct 0.10
 ```
 
-| Флаг | Описание | Значение по умолчанию |
-|------|----------|-----------------------|
-| `--csv-file` | Путь к файлу `styles.csv` | `data/fashion-product-images-small/styles.csv` |
-| `--noise-pct` | Доля «шумовых» взаимодействий | `0.05` |
-
-В результате создаются:
-- 120 товаров в 8 подкатегориях моды (по 15 в каждой): Topwear, Bottomwear, Shoes, Sandal, Bags, Watches, Jewellery, Fragrance
-- 500 пользователей со структурированными профилями предпочтений
-- более 6 000 взаимодействий (предпочтения + шум)
-- записи `AlgorithmMetrics` для всех пяти алгоритмов
-
-Время генерации: 60–120 секунд в зависимости от аппаратного обеспечения.
-
-**Альтернатива — синтетический набор данных (CSV не требуется):**
-
-```bash
-python manage.py generate_dataset --clear --users 150
-```
-
-### 5. Запуск сервера разработки
+### 6. Запуск сервера
 
 ```bash
 python manage.py runserver
@@ -207,100 +158,87 @@ python manage.py runserver
 
 ---
 
-## Настройка PostgreSQL
+## Команда generate_benchmark_data
 
-### Linux / macOS (автоматический скрипт)
+Это основная команда проекта. Она:
 
-```bash
-chmod +x setup_postgres.sh
-./setup_postgres.sh
-```
+1. Очищает базу данных
+2. Импортирует реальные товары из `styles.csv` (120 товаров, 8 подкатегорий моды)
+3. Создаёт 500 синтетических пользователей со структурированными предпочтениями
+4. Генерирует ~6 500 взаимодействий (предпочтения + шум)
+5. Обучает все пять алгоритмов рекомендаций
+6. Проводит трёхкратную перекрёстную проверку (сиды: 2026, 2027, 2028)
+7. Сохраняет результаты в таблицу `AlgorithmMetrics`
 
-Скрипт создаёт базу данных `ecommerce_alkabry`, пользователя `ecommerce_user` с паролем `ecommerce_pass_2026`.
+### Параметры
 
-### Ручная настройка (Windows и другие ОС)
+| Флаг | Описание | По умолчанию |
+|------|----------|--------------|
+| `--csv-file` | Путь к `styles.csv` | `data/fashion-product-images-small/styles.csv` |
+| `--noise-pct` | Доля шумовых взаимодействий | `0.05` |
 
-```sql
-CREATE DATABASE ecommerce_alkabry;
-CREATE USER ecommerce_user WITH PASSWORD 'ecommerce_pass_2026';
-GRANT ALL PRIVILEGES ON DATABASE ecommerce_alkabry TO ecommerce_user;
-```
-
-### Настройка файла `.env`
-
-```env
-DB_ENGINE=postgresql
-DB_NAME=ecommerce_alkabry
-DB_USER=ecommerce_user
-DB_PASSWORD=ecommerce_pass_2026
-DB_HOST=localhost
-DB_PORT=5432
-```
-
-После этого:
+### Примеры
 
 ```bash
-python manage.py migrate
+# Стандартный запуск
 python manage.py generate_benchmark_data
+
+# Указать путь к CSV
+python manage.py generate_benchmark_data --csv-file /path/to/styles.csv
+
+# Увеличить долю шума
+python manage.py generate_benchmark_data --noise-pct 0.10
 ```
+
+### Что создаётся
+
+- **Товары:** 120 (8 подкатегорий × 15)
+  - Topwear, Bottomwear, Shoes, Sandal, Bags, Watches, Jewellery, Fragrance
+- **Пользователи:** 500
+  - 350 фокусированных (одна категория)
+  - 150 разнообразных (две категории)
+- **Взаимодействия:** ~6 500
+  - ~5 500 целевых (предпочтительные категории)
+  - ~1 000 шумовых (случайные просмотры)
+- **Оценка:** трёхкратная перекрёстная проверка, k=10 рекомендаций
 
 ---
 
-## Команды управления
-
-### Генерация и оценка данных
+## Остальные команды управления
 
 ```bash
-# Основная команда бенчмарка (120 товаров, 500 пользователей, требуется CSV)
-python manage.py generate_benchmark_data
-
-# Синтетический набор данных (CSV не нужен)
+# Синтетические данные (без CSV)
 python manage.py generate_dataset --clear --users 150
 
-# Сравнение алгоритмов методом трёхкратной перекрёстной проверки
+# Сравнение алгоритмов
 python manage.py compare_algorithms
 
-# Повторное обучение моделей (сброс кеша, перестройка матриц)
+# Повторное обучение моделей
 python manage.py retrain_recommendation_models
 
-# Обновление кеша аналитических метрик
-python manage.py cache_algorithm_metrics
-```
-
-### База данных
-
-```bash
+# Миграции
 python manage.py makemigrations
 python manage.py migrate
-python manage.py createsuperuser
-python manage.py dumpdata --natural-foreign --natural-primary \
-    -e contenttypes -e auth.Permission --indent 2 > backup.json
-python manage.py loaddata backup.json
-```
 
-### Статические файлы
-
-```bash
+# Статика
 python manage.py collectstatic --noinput
-python manage.py collectstatic --clear --noinput
 ```
 
 ---
 
 ## Учётные данные
 
-### Учётная запись администратора (создаётся командой `generate_benchmark_data`)
+### Администратор (создаётся автоматически)
 
 ```
 Email:    admin@alkabry.com
 Пароль:   admin123
-URL:      http://localhost:8000/admin/
 ```
 
-### Бенчмарк-пользователи (500 аккаунтов)
+### Бенчмарк-пользователи
 
 ```
-Email:    pruser001@perfectreal.test  ...  pruser500@perfectreal.test
+Email:    pruser001@perfectreal.test ... pruser500@perfectreal.test
 Пароль:   testpass2026!
 ```
 
@@ -310,59 +248,36 @@ Email:    pruser001@perfectreal.test  ...  pruser500@perfectreal.test
 
 ```
 Al-kabry/
-├── config/                          # Настройки Django-проекта и маршрутизация
-│   ├── settings.py
-│   └── urls.py
-│
-├── accounts/                        # Аутентификация, профили, личный кабинет
-├── products/                        # Каталог товаров, поиск, фильтрация
+├── config/                      # Настройки Django
+├── accounts/                    # Аутентификация
+├── products/                    # Каталог товаров
 │   └── management/commands/
-│       ├── generate_benchmark_data.py   # Основная команда генерации данных
-│       ├── generate_dataset.py          # Синтетические данные (без CSV)
-│       └── compare_algorithms.py        # Оценка методом кросс-валидации
-│
-├── cart/                            # Корзина покупок (сессия + БД)
-├── orders/                          # Оформление и управление заказами
-│
-├── recommendations/                 # Движок рекомендаций
-│   ├── services.py                  # Все пять алгоритмов и гибридная система
-│   ├── models.py                    # UserInteraction, RecommendationEvent
-│   └── management/commands/
-│       └── retrain_recommendation_models.py
-│
-├── analytics/                       # Панель мониторинга и отчёты
-│   ├── models.py                    # AlgorithmMetrics, ComparisonReport
-│   └── management/commands/
-│       └── cache_algorithm_metrics.py
-│
-├── chatbot/                         # Чат-ассистент с NLP-парсингом
-│   └── i18n.py                      # Переводы (EN, ES, RU, AR)
-│
-├── templates/                       # HTML-шаблоны Django
-├── static/                          # Исходные CSS и JS
-├── media/                           # Загружаемые пользователями файлы
-│
+│       ├── generate_benchmark_data.py   # Основная команда
+│       ├── generate_dataset.py
+│       └── compare_algorithms.py
+├── cart/                        # Корзина
+├── orders/                      # Заказы
+├── recommendations/             # Движок рекомендаций
+│   ├── services.py              # 5 алгоритмов
+│   └── models.py
+├── analytics/                   # Аналитика
+├── chatbot/                     # Чат-ассистент
+├── templates/                   # HTML-шаблоны
+├── static/                      # CSS/JS
 ├── data/
 │   └── fashion-product-images-small/
-│       └── styles.csv               # Набор данных Kaggle (поместить сюда)
-│
-├── notebook.ipynb                   # Основной аналитический ноутбук
-├── comparison_results.ipynb         # Результаты сравнения алгоритмов
-├── recommendation_evaluation.ipynb  # Детальный анализ метрик оценки
-├── thesis_colab (1).ipynb           # Версия для Google Colab
-│
+│       └── styles.csv           # Данные Kaggle
+├── thesis_colab.ipynb           # Jupyter-ноутбук
 ├── manage.py
 ├── requirements.txt
-├── .env                             # Локальные переменные окружения (в .gitignore)
-├── .env.example                     # Шаблон для .env
-└── db.sqlite3                       # База данных SQLite (разработка)
+└── .env
 ```
 
 ---
 
 ## Результаты оценки алгоритмов
 
-Оценка проводится методом трёхкратной перекрёстной проверки (сиды: 2026, 2027, 2028), k = 10 рекомендаций.
+Оценка проводится на трёх сидах (2026, 2027, 2028), k = 10.
 
 | Алгоритм | Вес в гибридной системе |
 |----------|------------------------|
@@ -371,47 +286,47 @@ Al-kabry/
 | SVD | 15% |
 | Контентная фильтрация | 10% |
 
-Гибридная система превосходит каждый отдельный алгоритм, поскольку в итоговый список включаются только товары, получившие высокую оценку сразу от нескольких методов, что повышает точность и устойчивость рекомендаций.
+Гибридная система превосходит отдельные алгоритмы, объединяя их сильные стороны через взвешенное голосование.
 
-Подробные результаты доступны на панели мониторинга `/analytics/` (требуется вход под учётной записью персонала) или через команду:
+Просмотр результатов:
 
 ```bash
 python manage.py compare_algorithms
 ```
 
+Или через веб-интерфейс: `/analytics/` (требуется вход как `admin@alkabry.com`)
+
 ---
 
-## Jupyter-ноутбуки
+## Jupyter-ноутбук
+
+Проект включает один аналитический ноутбук:
 
 | Ноутбук | Назначение |
 |---------|-----------|
-| `notebook.ipynb` | Разведочный анализ данных и разработка алгоритмов |
-| `comparison_results.ipynb` | Метрики и визуализация сравнения алгоритмов |
-| `recommendation_evaluation.ipynb` | Детальный анализ метрик, кросс-валидация |
-| `thesis_colab (1).ipynb` | Версия для Google Colab (вычислительные эксперименты) |
+| `thesis_colab.ipynb` | Реализация алгоритмов, вычисление метрик, кросс-валидация, визуализация |
 
-Запуск ноутбуков:
+Запуск:
 
 ```bash
 pip install jupyter
-jupyter notebook
+jupyter notebook thesis_colab.ipynb
 ```
 
 ---
 
 ## Переменные окружения
 
-Содержимое файла `.env`:
+Файл `.env`:
 
 ```env
 SECRET_KEY=ваш-секретный-ключ
 DEBUG=True
 ALLOWED_HOSTS=*
 
-# База данных (по умолчанию SQLite)
 DB_ENGINE=sqlite
 
-# Только при DB_ENGINE=postgresql
+# Для PostgreSQL
 DB_NAME=ecommerce_alkabry
 DB_USER=ecommerce_user
 DB_PASSWORD=ecommerce_pass_2026
@@ -423,53 +338,40 @@ DB_PORT=5432
 
 ## Развёртывание
 
-Контрольный список для перехода в продакшн:
-
-1. Установить `DEBUG=False` и задать надёжный `SECRET_KEY` в `.env`.
-2. Перейти на PostgreSQL.
-3. Собрать статические файлы: `python manage.py collectstatic --noinput`.
-4. Запустить через gunicorn: `gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers 3`.
-5. Настроить nginx как обратный прокси для раздачи `/static/` и `/media/`.
+1. `DEBUG=False` и надёжный `SECRET_KEY`
+2. Перейти на PostgreSQL
+3. `python manage.py collectstatic --noinput`
+4. `gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers 3`
+5. Настроить nginx для `/static/` и `/media/`
 
 ---
 
 ## Устранение неполадок
 
-**Порт уже занят**
-
-```bash
-# Linux / macOS
-lsof -ti:8000 | xargs kill -9
-
-# Запуск на другом порту
-python manage.py runserver 8080
-```
-
-**CSV-файл Kaggle не найден**
+**CSV-файл не найден**
 
 ```
-FileNotFoundError: Kaggle CSV not found at: data/fashion-product-images-small/styles.csv
+FileNotFoundError: Kaggle CSV not found
 ```
 
-Скачайте `styles.csv` с Kaggle и поместите его по указанному пути, либо передайте путь явно: `--csv-file <путь>`.
+Скачайте `styles.csv` с Kaggle и поместите в `data/fashion-product-images-small/styles.csv`
 
 **Ошибки миграций (только для разработки)**
 
 ```bash
-# Полный сброс — только для разработки!
 rm -rf */migrations/0*.py
 rm db.sqlite3
 python manage.py makemigrations
 python manage.py migrate
 ```
 
-**Статические файлы не загружаются**
+**Статические файлы**
 
 ```bash
 python manage.py collectstatic --clear --noinput
 ```
 
-**Ошибка Module Not Found**
+**Module Not Found**
 
 ```bash
 pip install -r requirements.txt --force-reinstall
@@ -478,6 +380,3 @@ pip install -r requirements.txt --force-reinstall
 ---
 
 Проект разработан в рамках дипломной работы для сравнительного исследования алгоритмов рекомендаций в контексте электронной коммерции.
-#   A l K a b r y  
- #   A l K a b r y  
- 
