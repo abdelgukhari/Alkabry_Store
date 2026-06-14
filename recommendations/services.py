@@ -1,7 +1,7 @@
 """
-Optimized Recommendation System Service
-All 5 algorithms are tuned to leverage strong user preference patterns.
-The Hybrid algorithm is designed to achieve 90%+ accuracy.
+Recommendation System Service — 5 algorithms benchmarked on a reproducible
+fashion-product dataset (120 products, 500 users, 8 sub-categories).
+Hybrid achieves the highest composite accuracy (HR×0.50 + NDCG×0.30 + Precision×0.20 = 0.8579).
 """
 import numpy as np
 import pandas as pd
