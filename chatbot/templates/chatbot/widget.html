@@ -1,0 +1,294 @@
+{% load static %}
+<div id="chatbot-widget" style="position:fixed;bottom:24px;right:24px;z-index:9999;font-family:sans-serif;">
+
+<button id="chatbot-toggle" onclick="toggleChat()" style="width:60px;height:60px;border-radius:50%;background:#2E75B6;border:none;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,0.3);font-size:26px;color:white;display:flex;align-items:center;justify-content:center;">💬</button>
+
+<div id="chatbot-window" style="display:none;position:absolute;bottom:70px;right:0;width:360px;height:520px;background:white;border-radius:16px;box-shadow:0 8px 32px rgba(0,0,0,0.18);flex-direction:column;overflow:hidden;">
+
+<div style="background:#2E75B6;padding:12px 16px;color:white;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
+<div style="display:flex;align-items:center;gap:8px;">
+<span style="font-size:20px;">🛍️</span>
+<div>
+<div style="font-weight:700;font-size:14px;">Kabbary Assistant</div>
+<div style="font-size:10px;opacity:0.85;">Powered by Hybrid AI</div>
+</div>
+</div>
+<div style="display:flex;gap:4px;">
+<button onclick="selectLang('en')" id="lang-en" class="lang-btn active-lang">EN</button>
+<button onclick="selectLang('es')" id="lang-es" class="lang-btn">ES</button>
+<button onclick="selectLang('ru')" id="lang-ru" class="lang-btn">RU</button>
+<button onclick="selectLang('ar')" id="lang-ar" class="lang-btn">AR</button>
+</div>
+</div>
+
+<div id="chatbot-messages" style="flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px;background:#f8fafc;"></div>
+
+<div style="padding:10px 12px;border-top:1px solid #e2e8f0;background:white;display:flex;gap:8px;flex-shrink:0;">
+<input id="chatbot-input" type="text" placeholder="Type a message..." onkeydown="if(event.key==='Enter')sendMessage()" style="flex:1;padding:8px 14px;border:1px solid #cbd5e1;border-radius:20px;font-size:13px;outline:none;"/>
+<button onclick="sendMessage()" style="background:#2E75B6;color:white;border:none;border-radius:50%;width:36px;height:36px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;">➤</button>
+</div>
+
+</div>
+</div>
+
+<style>
+.lang-btn{background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.4);color:white;border-radius:6px;padding:2px 6px;font-size:10px;cursor:pointer;font-weight:600;transition:background 0.15s;}
+.lang-btn:hover{background:rgba(255,255,255,0.3);}
+.active-lang{background:white!important;color:#2E75B6!important;}
+
+@keyframes fadeSlideIn{from{opacity:0;transform:translateY(7px);}to{opacity:1;transform:translateY(0);}}
+@keyframes blink{0%,100%{opacity:0.2;}50%{opacity:1;}}
+
+.bot-msg{background:white;border:1px solid #e2e8f0;border-radius:12px 12px 12px 4px;padding:9px 13px;font-size:12.5px;color:#1e293b;max-width:88%;line-height:1.6;box-shadow:0 1px 4px rgba(0,0,0,0.07);animation:fadeSlideIn 0.2s ease;}
+.user-msg{background:linear-gradient(135deg,#2E75B6,#1a5a9a);color:white;border-radius:12px 12px 4px 12px;padding:9px 13px;font-size:12.5px;max-width:88%;align-self:flex-end;line-height:1.6;animation:fadeSlideIn 0.2s ease;}
+
+.prod-item{display:flex;align-items:center;gap:10px;background:white;border:1px solid #e8edf3;border-radius:12px;padding:9px 10px;margin-top:4px;transition:box-shadow 0.15s,transform 0.15s;}
+.prod-item:hover{box-shadow:0 4px 12px rgba(46,117,182,0.13);transform:translateY(-1px);}
+.prod-img{width:56px;height:56px;object-fit:cover;border-radius:8px;background:#f1f5f9;flex-shrink:0;}
+.prod-info{flex:1;min-width:0;}
+.prod-name{font-size:12px;font-weight:600;color:#1e293b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.prod-meta{font-size:10px;color:#94a3b8;margin-top:2px;display:flex;align-items:center;gap:5px;}
+.color-dot{display:inline-block;width:8px;height:8px;border-radius:50%;border:1px solid rgba(0,0,0,0.12);flex-shrink:0;}
+.prod-price{font-size:13px;color:#2E75B6;font-weight:700;margin-top:4px;}
+.prod-link{font-size:10px;background:#2E75B6;color:white;padding:5px 10px;border-radius:8px;text-decoration:none;white-space:nowrap;flex-shrink:0;font-weight:600;transition:background 0.15s;}
+.prod-link:hover{background:#1a5a9a;color:white;}
+
+.qbtn{background:white;border:1.5px solid #2E75B6;color:#2E75B6;border-radius:20px;padding:5px 14px;font-size:11.5px;cursor:pointer;font-weight:600;transition:all 0.15s;}
+.qbtn:hover{background:#2E75B6;color:white;}
+.quick-replies{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px;}
+
+.typing-indicator{display:flex;align-items:center;gap:4px;padding:10px 14px;background:white;border:1px solid #e2e8f0;border-radius:12px 12px 12px 4px;width:fit-content;box-shadow:0 1px 4px rgba(0,0,0,0.07);}
+.typing-dot{width:6px;height:6px;background:#94a3b8;border-radius:50%;animation:blink 1.2s infinite;}
+.typing-dot:nth-child(2){animation-delay:0.2s;}
+.typing-dot:nth-child(3){animation-delay:0.4s;}
+
+#chatbot-messages::-webkit-scrollbar{width:4px;}
+#chatbot-messages::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:2px;}
+</style>
+
+<script>
+var chatState="welcome",chatContext={},chatLang="en",chatOpen=false,chatStarted=false;
+
+var COLOR_MAP={
+  red:'#ef4444',blue:'#3b82f6',navy:'#1e3a5f',black:'#1f2937',
+  white:'#f9fafb',gray:'#6b7280',grey:'#6b7280',green:'#22c55e',
+  yellow:'#eab308',pink:'#ec4899',purple:'#a855f7',brown:'#92400e',
+  orange:'#f97316',beige:'#d4c5a9',cream:'#fef9c3',maroon:'#7f1d1d',
+  olive:'#65a30d',teal:'#14b8a6',tan:'#d4a373',silver:'#9ca3af',
+  gold:'#d97706',khaki:'#a16207',mint:'#6ee7b7',
+};
+
+function toggleChat(){
+  chatOpen=!chatOpen;
+  var win=document.getElementById("chatbot-window");
+  win.style.display=chatOpen?"flex":"none";
+  if(chatOpen&&!chatStarted){chatStarted=true;showLangSelector();}
+}
+
+function showLangSelector(){
+  var msgs=document.getElementById("chatbot-messages");
+  msgs.innerHTML="";
+  var div=document.createElement("div");
+  div.className="bot-msg";
+  div.textContent="👋 Welcome to Kabbary Store! Please select your language:";
+  var btnDiv=document.createElement("div");
+  btnDiv.style.cssText="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;";
+  var langs=[["en","🇬🇧 English"],["es","🇪🇸 Español"],["ru","🇷🇺 Русский"],["ar","🇸🇦 العربية"]];
+  langs.forEach(function(item){
+    var btn=document.createElement("button");
+    btn.className="qbtn";
+    btn.textContent=item[1];
+    (function(l){btn.onclick=function(){selectLang(l);};})(item[0]);
+    btnDiv.appendChild(btn);
+  });
+  div.appendChild(btnDiv);
+  msgs.appendChild(div);
+}
+
+function selectLang(lang){
+  setLang(lang);
+  sendToBot("","welcome");
+}
+
+function setLang(lang){
+  chatLang=lang;
+  ["en","es","ru","ar"].forEach(function(l){
+    document.getElementById("lang-"+l).classList.remove("active-lang");
+  });
+  document.getElementById("lang-"+lang).classList.add("active-lang");
+  var win=document.getElementById("chatbot-window");
+  win.style.direction=lang==="ar"?"rtl":"ltr";
+  chatState="welcome";
+  chatContext={};
+  document.getElementById("chatbot-messages").innerHTML="";
+}
+
+function sendMessage(){
+  var input=document.getElementById("chatbot-input");
+  var msg=input.value.trim();
+  if(!msg)return;
+  input.value="";
+  addMsg(msg,"user");
+  sendToBot(msg,chatState);
+}
+
+function addMsg(text,type){
+  var msgs=document.getElementById("chatbot-messages");
+  var div=document.createElement("div");
+  div.className=type==="bot"?"bot-msg":"user-msg";
+  div.style.whiteSpace="pre-line";
+  div.textContent=text;
+  msgs.appendChild(div);
+  msgs.scrollTop=msgs.scrollHeight;
+}
+
+function addProducts(products){
+  var msgs=document.getElementById("chatbot-messages");
+  var container=document.createElement("div");
+  container.style.cssText="display:flex;flex-direction:column;gap:6px;width:100%;";
+  products.forEach(function(p){
+    var item=document.createElement("div");
+    item.className="prod-item";
+
+    var imgEl;
+    if(p.image){
+      imgEl=document.createElement("img");
+      imgEl.src=p.image;
+      imgEl.className="prod-img";
+      imgEl.onerror=function(){
+        this.outerHTML='<div class="prod-img" style="display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;">👕</div>';
+      };
+    } else {
+      imgEl=document.createElement("div");
+      imgEl.className="prod-img";
+      imgEl.style.cssText="display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;";
+      imgEl.textContent="👕";
+    }
+
+    var info=document.createElement("div");
+    info.className="prod-info";
+
+    var name=document.createElement("div");
+    name.className="prod-name";
+    name.title=p.name;
+    name.textContent=p.name;
+    info.appendChild(name);
+
+    if(p.color||p.size){
+      var meta=document.createElement("div");
+      meta.className="prod-meta";
+      if(p.color){
+        var dot=document.createElement("span");
+        dot.className="color-dot";
+        dot.style.background=COLOR_MAP[p.color.toLowerCase().trim()]||"#e2e8f0";
+        meta.appendChild(dot);
+        meta.appendChild(document.createTextNode(p.color));
+      }
+      if(p.size){
+        if(p.color) meta.appendChild(document.createTextNode(" · "));
+        meta.appendChild(document.createTextNode(p.size_label+": "+p.size));
+      }
+      info.appendChild(meta);
+    }
+
+    var price=document.createElement("div");
+    price.className="prod-price";
+    price.textContent="$"+p.price;
+    info.appendChild(price);
+
+    var link=document.createElement("a");
+    link.href=p.url;
+    link.className="prod-link";
+    link.textContent=p.view_product+" →";
+
+    item.appendChild(imgEl);
+    item.appendChild(info);
+    item.appendChild(link);
+    container.appendChild(item);
+  });
+  msgs.appendChild(container);
+  msgs.scrollTop=msgs.scrollHeight;
+}
+
+function addQuickReplies(options){
+  var msgs=document.getElementById("chatbot-messages");
+  var div=document.createElement("div");
+  div.className="quick-replies";
+  options.forEach(function(opt){
+    var btn=document.createElement("button");
+    btn.className="qbtn";
+    btn.textContent=opt;
+    btn.onclick=function(){div.remove();addMsg(opt,"user");sendToBot(opt,chatState);};
+    div.appendChild(btn);
+  });
+  msgs.appendChild(div);
+  msgs.scrollTop=msgs.scrollHeight;
+}
+
+function addTyping(){
+  var msgs=document.getElementById("chatbot-messages");
+  var div=document.createElement("div");
+  div.id="typing-indicator";
+  div.className="typing-indicator";
+  for(var i=0;i<3;i++){
+    var dot=document.createElement("span");
+    dot.className="typing-dot";
+    div.appendChild(dot);
+  }
+  msgs.appendChild(div);
+  msgs.scrollTop=msgs.scrollHeight;
+}
+
+function removeTyping(){
+  var el=document.getElementById("typing-indicator");
+  if(el)el.remove();
+}
+
+function showSequentialMessages(messages,products,state){
+  function showNext(i){
+    if(i>=messages.length){
+      if(products&&products.length>0) addProducts(products);
+      if(state==="ask_found"){
+        var yesNo=chatLang==="es"?["Sí","No"]:chatLang==="ru"?["Да","Нет"]:chatLang==="ar"?["نعم","لا"]:["Yes","No"];
+        setTimeout(function(){addQuickReplies(yesNo);},300);
+      }
+      return;
+    }
+    addMsg(messages[i],"bot");
+    if(i<messages.length-1){
+      setTimeout(function(){
+        addTyping();
+        setTimeout(function(){removeTyping();showNext(i+1);},550);
+      },150);
+    } else {
+      showNext(i+1);
+    }
+  }
+  showNext(0);
+}
+
+function sendToBot(message,state){
+  addTyping();
+  fetch("/chatbot/chat/",{
+    method:"POST",
+    headers:{"Content-Type":"application/json","X-CSRFToken":getCookie("csrftoken")},
+    body:JSON.stringify({message:message,state:state,lang:chatLang,context:chatContext})
+  }).then(function(r){return r.json();}).then(function(data){
+    removeTyping();
+    chatState=data.state;
+    chatContext=data.context||{};
+    var messages=data.messages||[data.reply];
+    showSequentialMessages(messages,data.products||[],data.state);
+  }).catch(function(){
+    removeTyping();
+    addMsg("Sorry, something went wrong.","bot");
+  });
+}
+
+function getCookie(name){
+  var value="; "+document.cookie;
+  var parts=value.split("; "+name+"=");
+  if(parts.length===2)return parts.pop().split(";").shift();
+  return "";
+}
+</script>

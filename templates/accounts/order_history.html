@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+
+{% block title %}Order History - AlKabry Ecommerce{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold text-gray-900 mb-8">Your Orders</h1>
+
+    {% if orders %}
+    <div class="space-y-6">
+        {% for order in orders %}
+        <div class="bg-white border border-gray-200 rounded-lg overflow-hidden">
+            <!-- Order Header -->
+            <div class="bg-gray-50 px-6 py-4 border-b border-gray-200">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div>
+                        <p class="text-xs text-gray-500 mb-1">ORDER PLACED</p>
+                        <p class="font-semibold text-gray-900">{{ order.created_at|date:"d M Y" }}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-500 mb-1">TOTAL</p>
+                        <p class="font-bold text-gray-900 text-lg">${{ order.total }}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-500 mb-1">STATUS</p>
+                        <span class="inline-block px-3 py-1 rounded-full text-sm font-semibold
+                            {% if order.status == 'delivered' %}bg-green-100 text-green-800
+                            {% elif order.status == 'pending' %}bg-yellow-100 text-yellow-800
+                            {% elif order.status == 'processing' %}bg-blue-100 text-blue-800
+                            {% else %}bg-gray-100 text-gray-800{% endif %}">
+                            {{ order.get_status_display }}
+                        </span>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-xs text-gray-500 mb-1">ORDER #</p>
+                        <p class="font-mono text-sm text-amazon-blue">{{ order.order_number }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Order Details -->
+            <div class="p-6">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Order Items -->
+                    <div class="lg:col-span-2">
+                        <h3 class="font-bold text-gray-900 mb-4">Items Ordered ({{ order.item_count }})</h3>
+                        <div class="space-y-3">
+                            {% for item in order.items.all %}
+                            <div class="flex items-center gap-4 p-3 border border-gray-200 rounded-lg">
+                                {% if item.product.image %}
+                                <a href="{{ item.product.get_absolute_url }}">
+                                    <img src="{{ item.product.image.url }}" 
+                                         alt="{{ item.product_name }}"
+                                         class="w-16 h-16 object-cover rounded flex-shrink-0">
+                                </a>
+                                {% else %}
+                                <div class="w-16 h-16 bg-gray-200 rounded flex items-center justify-center flex-shrink-0">
+                                    <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                    </svg>
+                                </div>
+                                {% endif %}
+                                <div class="flex-1 min-w-0">
+                                    <p class="font-medium text-gray-900 truncate">{{ item.product_name }}</p>
+                                    <p class="text-sm text-gray-500">Qty: {{ item.quantity }} × ${{ item.price }}</p>
+                                </div>
+                                <p class="font-bold text-gray-900">${{ item.subtotal|floatformat:2 }}</p>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Shipping Info -->
+                    <div>
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h3 class="font-bold text-gray-900 mb-3 flex items-center gap-2">
+                                <svg class="w-5 h-5 text-amazon-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.65 6.95a7.996 7.996 0 00-5.356-2.071c-1.035 0-2.024.228-2.924.616M12 3v1m0 16v1m-8-8H3m2.356 2.356l-.707.707M20 12h1m-2.356-2.356l.707-.707M12 13a3 3 0 100-6 3 3 0 000 6z"/>
+                                </svg>
+                                Shipping Address
+                            </h3>
+                            <p class="text-sm text-gray-700">
+                                {{ order.shipping_address }}<br>
+                                {{ order.shipping_city }}, {{ order.shipping_country }} {{ order.shipping_zip_code }}
+                            </p>
+                        </div>
+
+                        <div class="mt-4 p-4 bg-gray-50 rounded-lg">
+                            <h3 class="font-bold text-gray-900 mb-2 flex items-center gap-2">
+                                <svg class="w-5 h-5 text-amazon-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+                                </svg>
+                                Payment
+                            </h3>
+                            <p class="text-sm text-gray-700">{{ order.get_payment_status_display }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="bg-white border border-gray-200 rounded-lg text-center py-16">
+        <svg class="w-24 h-24 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+        </svg>
+        <h3 class="text-xl font-bold text-gray-900 mb-2">No orders yet</h3>
+        <p class="text-gray-500 mb-6">Start shopping to see your orders here!</p>
+        <a href="{% url 'products:list' %}" 
+           class="bg-amazon-yellow hover:bg-amazon-yellow/90 text-gray-900 font-bold py-3 px-8 rounded-full transition-colors inline-block">
+            Start Shopping
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

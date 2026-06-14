@@ -1,0 +1,150 @@
+{% extends 'base.html' %}
+
+{% block title %}All Products - AlKabry Ecommerce{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="flex gap-6">
+        <!-- Filters Sidebar -->
+        <aside class="w-64 flex-shrink-0">
+            <div class="bg-white border border-gray-200 rounded-lg p-6 sticky top-20">
+                <h2 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>
+                    </svg>
+                    Filters
+                </h2>
+                <form method="GET" action="{% url 'products:list' %}" id="filterForm">
+                    <!-- Category Filter -->
+                    <div class="mb-6">
+                        <h3 class="text-sm font-bold text-gray-900 mb-2">Category</h3>
+                        <select name="category" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amazon-blue">
+                            <option value="">All Categories</option>
+                            {% for category in categories %}
+                            <option value="{{ category.slug }}" {% if request.GET.category == category.slug %}selected{% endif %}>
+                                {{ category.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Price Range -->
+                    <div class="mb-6">
+                        <h3 class="text-sm font-bold text-gray-900 mb-2">Price</h3>
+                        <div class="flex gap-2">
+                            <input type="number" name="price_min" 
+                                   class="w-1/2 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amazon-blue" 
+                                   placeholder="Min"
+                                   value="{{ request.GET.price_min }}">
+                            <input type="number" name="price_max" 
+                                   class="w-1/2 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amazon-blue" 
+                                   placeholder="Max"
+                                   value="{{ request.GET.price_max }}">
+                        </div>
+                    </div>
+
+                    <!-- Brand Filter -->
+                    <div class="mb-6">
+                        <h3 class="text-sm font-bold text-gray-900 mb-2">Brand</h3>
+                        <input type="text" name="brand" 
+                               class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amazon-blue" 
+                               placeholder="Search brand..."
+                               value="{{ request.GET.brand }}">
+                    </div>
+
+                    <!-- Color Filter -->
+                    <div class="mb-6">
+                        <h3 class="text-sm font-bold text-gray-900 mb-2">Color</h3>
+                        <input type="text" name="color" 
+                               class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amazon-blue" 
+                               placeholder="Color"
+                               value="{{ request.GET.color }}">
+                    </div>
+
+                    <button type="submit" class="w-full bg-amazon-yellow hover:bg-amazon-yellow/90 text-gray-900 font-bold py-2 px-4 rounded-full transition-colors text-sm">
+                        Apply Filters
+                    </button>
+
+                    {% if request.GET %}
+                    <a href="{% url 'products:list' %}" class="w-full mt-2 border border-gray-300 hover:bg-gray-100 text-gray-700 font-medium py-2 px-4 rounded-full transition-colors text-center block text-sm">
+                        Clear All
+                    </a>
+                    {% endif %}
+                </form>
+            </div>
+        </aside>
+
+        <!-- Products Grid -->
+        <main class="flex-1">
+            <div class="flex justify-between items-center mb-6">
+                <h1 class="text-2xl font-bold text-gray-900">Products</h1>
+                <span class="text-gray-600">{{ page_obj.paginator.count }} products found</span>
+            </div>
+
+            <div id="product-grid">
+                {% include 'products/partials/product_grid.html' %}
+            </div>
+
+            <!-- Pagination -->
+            {% if page_obj.has_other_pages %}
+            <nav class="mt-8 flex justify-center">
+                <ul class="flex items-center gap-2">
+                    {% if page_obj.has_previous %}
+                    <li>
+                        <a href="?page=1{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" 
+                           class="px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"/>
+                            </svg>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="?page={{ page_obj.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" 
+                           class="px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                            </svg>
+                        </a>
+                    </li>
+                    {% endif %}
+
+                    {% for num in page_obj.paginator.page_range %}
+                    {% if page_obj.number == num %}
+                    <li>
+                        <span class="px-4 py-2 bg-amazon-yellow text-gray-900 font-bold rounded-lg">{{ num }}</span>
+                    </li>
+                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                    <li>
+                        <a href="?page={{ num }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" 
+                           class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors">
+                            {{ num }}
+                        </a>
+                    </li>
+                    {% endif %}
+                    {% endfor %}
+
+                    {% if page_obj.has_next %}
+                    <li>
+                        <a href="?page={{ page_obj.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" 
+                           class="px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                            </svg>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="?page={{ page_obj.paginator.num_pages }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" 
+                           class="px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"/>
+                            </svg>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+        </main>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+
+{% block title %}Search: {{ query }} - AlKabry Ecommerce{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <!-- Search Header -->
+    <div class="mb-6">
+        <h1 class="text-2xl font-bold text-gray-900 mb-2">Search Results for "{{ query }}"</h1>
+        <p class="text-gray-600">{{ page_obj.paginator.count }} products found</p>
+    </div>
+
+    <!-- Products Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        {% for product in page_obj %}
+        <div>
+            {% include 'products/partials/product_card.html' with product=product %}
+        </div>
+        {% empty %}
+        <div class="col-span-full text-center py-16">
+            <svg class="w-24 h-24 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+            </svg>
+            <h4 class="text-xl font-medium text-gray-900 mb-2">No products found</h4>
+            <p class="text-gray-500 mb-6">Try different keywords or browse all products</p>
+            <a href="{% url 'products:list' %}" class="bg-amazon-yellow hover:bg-amazon-yellow/90 text-gray-900 font-medium py-3 px-8 rounded-full transition-colors inline-block">
+                Browse All Products
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if page_obj.has_other_pages %}
+    <nav class="mt-12 flex justify-center">
+        <ul class="flex items-center gap-2">
+            {% if page_obj.has_previous %}
+            <li>
+                <a href="?page={{ page_obj.previous_page_number }}&q={{ query }}" 
+                   class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                    </svg>
+                </a>
+            </li>
+            {% endif %}
+            
+            {% for num in page_obj.paginator.page_range %}
+            {% if num == page_obj.number %}
+            <li>
+                <span class="px-4 py-2 bg-amazon-yellow text-gray-900 font-bold rounded-lg">{{ num }}</span>
+            </li>
+            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+            <li>
+                <a href="?page={{ num }}&q={{ query }}" 
+                   class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors">
+                    {{ num }}
+                </a>
+            </li>
+            {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+            <li>
+                <a href="?page={{ page_obj.next_page_number }}&q={{ query }}" 
+                   class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                    </svg>
+                </a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+{% endblock %}

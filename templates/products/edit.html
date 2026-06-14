@@ -1,0 +1,191 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit: {{ product.name }} - AlKabry Ecommerce{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8 max-w-5xl">
+    <div class="flex flex-wrap items-center justify-between gap-4 mb-8">
+        <h1 class="text-2xl font-bold text-gray-900 flex items-center gap-2">
+            <svg class="w-7 h-7 text-amazon-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+            </svg>
+            Edit Product
+        </h1>
+        <div class="flex gap-3">
+            <a href="{% url 'products:detail' product.slug %}" class="text-amazon-blue hover:underline text-sm font-semibold">View Product &rarr;</a>
+            <a href="{% url 'products:manage' %}" class="text-gray-600 hover:underline text-sm">&larr; Back to List</a>
+        </div>
+    </div>
+
+    <form method="POST" enctype="multipart/form-data" class="space-y-8">
+        {% csrf_token %}
+
+        <!-- Basic Info -->
+        <div class="bg-white border border-gray-200 rounded-lg p-6">
+            <h2 class="text-lg font-bold text-gray-900 mb-4">Basic Information</h2>
+            <div class="space-y-4">
+                <div>
+                    <label for="id_name" class="block text-sm font-semibold text-gray-700 mb-1">Product Name</label>
+                    {{ form.name }}
+                    {% if form.name.errors %}<p class="text-red-600 text-xs mt-1">{{ form.name.errors.0 }}</p>{% endif %}
+                </div>
+                <div>
+                    <label for="id_short_description" class="block text-sm font-semibold text-gray-700 mb-1">Short Description</label>
+                    {{ form.short_description }}
+                </div>
+                <div>
+                    <label for="id_description" class="block text-sm font-semibold text-gray-700 mb-1">Description</label>
+                    {{ form.description }}
+                    {% if form.description.errors %}<p class="text-red-600 text-xs mt-1">{{ form.description.errors.0 }}</p>{% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Pricing -->
+        <div class="bg-white border border-gray-200 rounded-lg p-6">
+            <h2 class="text-lg font-bold text-gray-900 mb-4">Pricing</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                    <label for="id_price" class="block text-sm font-semibold text-gray-700 mb-1">Price ($)</label>
+                    {{ form.price }}
+                    {% if form.price.errors %}<p class="text-red-600 text-xs mt-1">{{ form.price.errors.0 }}</p>{% endif %}
+                </div>
+                <div>
+                    <label for="id_compare_price" class="block text-sm font-semibold text-gray-700 mb-1">Compare Price ($)</label>
+                    {{ form.compare_price }}
+                </div>
+                <div>
+                    <label for="id_cost_price" class="block text-sm font-semibold text-gray-700 mb-1">Cost Price ($)</label>
+                    {{ form.cost_price }}
+                </div>
+            </div>
+        </div>
+
+        <!-- Inventory -->
+        <div class="bg-white border border-gray-200 rounded-lg p-6">
+            <h2 class="text-lg font-bold text-gray-900 mb-4">Inventory</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                    <label for="id_sku" class="block text-sm font-semibold text-gray-700 mb-1">SKU</label>
+                    {{ form.sku }}
+                </div>
+                <div>
+                    <label for="id_stock" class="block text-sm font-semibold text-gray-700 mb-1">Stock</label>
+                    {{ form.stock }}
+                </div>
+                <div class="flex items-end gap-6 pb-2">
+                    <label class="flex items-center gap-2 text-sm font-semibold text-gray-700">
+                        {{ form.is_available }} Available
+                    </label>
+                    <label class="flex items-center gap-2 text-sm font-semibold text-gray-700">
+                        {{ form.is_active }} Active
+                    </label>
+                    <label class="flex items-center gap-2 text-sm font-semibold text-gray-700">
+                        {{ form.is_featured }} Featured
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Categorization & Attributes -->
+        <div class="bg-white border border-gray-200 rounded-lg p-6">
+            <h2 class="text-lg font-bold text-gray-900 mb-4">Categorization & Attributes</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div>
+                    <label for="id_category" class="block text-sm font-semibold text-gray-700 mb-1">Category</label>
+                    {{ form.category }}
+                </div>
+                <div>
+                    <label for="id_brand" class="block text-sm font-semibold text-gray-700 mb-1">Brand</label>
+                    {{ form.brand }}
+                </div>
+                <div>
+                    <label for="id_color" class="block text-sm font-semibold text-gray-700 mb-1">Color</label>
+                    {{ form.color }}
+                </div>
+                <div>
+                    <label for="id_size" class="block text-sm font-semibold text-gray-700 mb-1">Size</label>
+                    {{ form.size }}
+                </div>
+                <div>
+                    <label for="id_material" class="block text-sm font-semibold text-gray-700 mb-1">Material</label>
+                    {{ form.material }}
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Image -->
+        <div class="bg-white border border-gray-200 rounded-lg p-6">
+            <h2 class="text-lg font-bold text-gray-900 mb-4">Main Image</h2>
+            {% if product.image %}
+            <div class="mb-4">
+                <img src="{{ product.image.url }}" alt="{{ product.name }}" class="w-48 h-48 object-cover rounded-lg border border-gray-200">
+                <p class="text-xs text-gray-500 mt-1">Current image</p>
+            </div>
+            {% endif %}
+            <div>
+                <label for="id_image" class="block text-sm font-semibold text-gray-700 mb-1">Upload New Image</label>
+                {{ form.image }}
+            </div>
+        </div>
+
+        <!-- Save -->
+        <div class="flex justify-end gap-3">
+            <a href="{% url 'products:manage' %}" class="px-6 py-2.5 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-semibold text-sm">Cancel</a>
+            <button type="submit" class="px-8 py-2.5 bg-amazon-yellow hover:bg-amazon-yellow/90 text-gray-900 font-bold rounded-lg text-sm transition-colors">
+                Save Changes
+            </button>
+        </div>
+    </form>
+
+    <!-- Gallery Images -->
+    <div class="bg-white border border-gray-200 rounded-lg p-6 mt-8">
+        <h2 class="text-lg font-bold text-gray-900 mb-4">Gallery Images</h2>
+
+        {% if gallery_images %}
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 mb-6">
+            {% for img in gallery_images %}
+            <div class="relative group">
+                <img src="{{ img.image.url }}" alt="{{ img.alt_text|default:product.name }}" class="w-full h-32 object-cover rounded-lg border border-gray-200">
+                {% if img.is_primary %}
+                <span class="absolute top-1 left-1 bg-amazon-blue text-white text-[10px] px-1.5 py-0.5 rounded">Primary</span>
+                {% endif %}
+                <form method="POST" class="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="delete_image">
+                    <input type="hidden" name="image_id" value="{{ img.id }}">
+                    <button type="submit" class="bg-red-600 hover:bg-red-700 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs" title="Delete image">&times;</button>
+                </form>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-gray-500 text-sm mb-4">No gallery images yet.</p>
+        {% endif %}
+
+        <form method="POST" enctype="multipart/form-data" class="border-t border-gray-200 pt-4">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="add_image">
+            <h3 class="text-sm font-bold text-gray-700 mb-3">Add Gallery Image</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">Image File</label>
+                    {{ img_form.image }}
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">Alt Text</label>
+                    {{ img_form.alt_text }}
+                </div>
+                <div class="flex items-center gap-4">
+                    <label class="flex items-center gap-2 text-sm text-gray-700">
+                        {{ img_form.is_primary }} Primary
+                    </label>
+                    <button type="submit" class="bg-amazon-blue hover:bg-amazon-blue/90 text-white font-bold px-4 py-2 rounded-lg text-sm transition-colors">
+                        Upload
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

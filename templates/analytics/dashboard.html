@@ -1,0 +1,315 @@
+{% extends 'base.html' %}
+
+{% block title %}Analytics Dashboard - AlKabry Ecommerce{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <!-- Header -->
+    <div class="flex flex-wrap justify-between items-center mb-8 gap-4">
+        <h1 class="text-3xl font-bold text-gray-900 flex items-center gap-2">
+            <svg class="w-8 h-8 text-amazon-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+            </svg>
+            Analytics Dashboard
+        </h1>
+        <div class="flex flex-wrap gap-3">
+            <select id="daysSelector" onchange="updateDashboard(this.value)" 
+                    class="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-amazon-blue">
+                <option value="7" {% if days == 7 %}selected{% endif %}>Last 7 days</option>
+                <option value="30" {% if days == 30 %}selected{% endif %}>Last 30 days</option>
+                <option value="90" {% if days == 90 %}selected{% endif %}>Last 90 days</option>
+            </select>
+            <a href="{% url 'analytics:compare' %}" 
+               class="bg-amazon-blue hover:bg-amazon-blue/90 text-white font-bold py-2 px-6 rounded-lg transition-colors flex items-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/>
+                </svg>
+                Compare Algorithms
+            </a>
+        </div>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <!-- Total Orders -->
+        <div class="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow">
+            <div class="flex items-center justify-between mb-4">
+                <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <svg class="w-7 h-7 text-amazon-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+                    </svg>
+                </div>
+            </div>
+            <h3 class="text-3xl font-bold text-gray-900 mb-1">{{ total_orders }}</h3>
+            <p class="text-gray-600 text-sm">Total Orders</p>
+        </div>
+
+        <!-- Total Revenue -->
+        <div class="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow">
+            <div class="flex items-center justify-between mb-4">
+                <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                    <svg class="w-7 h-7 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                </div>
+            </div>
+            <h3 class="text-3xl font-bold text-gray-900 mb-1">${{ total_revenue|floatformat:2 }}</h3>
+            <p class="text-gray-600 text-sm">Total Revenue</p>
+        </div>
+
+        <!-- Active Products -->
+        <div class="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow">
+            <div class="flex items-center justify-between mb-4">
+                <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                    <svg class="w-7 h-7 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                    </svg>
+                </div>
+            </div>
+            <h3 class="text-3xl font-bold text-gray-900 mb-1">{{ top_products|length }}</h3>
+            <p class="text-gray-600 text-sm">Active Products</p>
+        </div>
+
+        <!-- Algorithms -->
+        <div class="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow">
+            <div class="flex items-center justify-between mb-4">
+                <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                    <svg class="w-7 h-7 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+                    </svg>
+                </div>
+            </div>
+            <h3 class="text-3xl font-bold text-gray-900 mb-1">5</h3>
+            <p class="text-gray-600 text-sm">Algorithms</p>
+        </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+        <!-- Performance Chart -->
+        <div class="lg:col-span-2 bg-white border border-gray-200 rounded-lg p-6">
+            <h3 class="text-xl font-bold text-gray-900 mb-6">Algorithm Performance Comparison</h3>
+            <canvas id="performanceChart" height="100"></canvas>
+        </div>
+
+        <!-- Revenue Chart -->
+        <div class="bg-white border border-gray-200 rounded-lg p-6">
+            <h3 class="text-xl font-bold text-gray-900 mb-6">Revenue by Algorithm</h3>
+            <canvas id="revenueChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Algorithm Stats Table -->
+    <div class="bg-white border border-gray-200 rounded-lg p-6 mb-8">
+        <h3 class="text-xl font-bold text-gray-900 mb-6">Detailed Algorithm Stats</h3>
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead>
+                    <tr class="border-b-2 border-gray-200">
+                        <th class="text-left py-3 px-4 text-sm font-bold text-gray-900">Algorithm</th>
+                        <th class="text-center py-3 px-4 text-sm font-bold text-gray-900">Impressions</th>
+                        <th class="text-center py-3 px-4 text-sm font-bold text-gray-900">Clicks</th>
+                        <th class="text-center py-3 px-4 text-sm font-bold text-gray-900">CTR</th>
+                        <th class="text-center py-3 px-4 text-sm font-bold text-gray-900">Purchases</th>
+                        <th class="text-center py-3 px-4 text-sm font-bold text-gray-900">Conversion</th>
+                        <th class="text-right py-3 px-4 text-sm font-bold text-gray-900">Revenue</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for algo, stats in algorithm_stats.items %}
+                    <tr class="border-b border-gray-100 hover:bg-gray-50">
+                        <td class="py-3 px-4">
+                            <div class="flex items-center gap-2">
+                                {% if algo == 'content_based' %}
+                                <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
+                                </svg>
+                                <span class="font-semibold">Content-Based</span>
+                                {% elif algo == 'user_based_cf' %}
+                                <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                </svg>
+                                <span class="font-semibold">User-Based CF</span>
+                                {% elif algo == 'item_based_cf' %}
+                                <svg class="w-5 h-5 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                                </svg>
+                                <span class="font-semibold">Item-Based CF</span>
+                                {% elif algo == 'svd' %}
+                                <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4"/>
+                                </svg>
+                                <span class="font-semibold">SVD</span>
+                                {% elif algo == 'hybrid' %}
+                                <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                                </svg>
+                                <span class="font-semibold">Hybrid</span>
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td class="text-center py-3 px-4 text-sm text-gray-700">{{ stats.impressions }}</td>
+                        <td class="text-center py-3 px-4 text-sm text-gray-700">{{ stats.clicks }}</td>
+                        <td class="text-center py-3 px-4">
+                            <span class="bg-blue-100 text-blue-800 text-xs font-semibold px-2 py-1 rounded-full">{{ stats.ctr|floatformat:2 }}%</span>
+                        </td>
+                        <td class="text-center py-3 px-4 text-sm text-gray-700">{{ stats.purchases }}</td>
+                        <td class="text-center py-3 px-4">
+                            <span class="bg-green-100 text-green-800 text-xs font-semibold px-2 py-1 rounded-full">{{ stats.conversion_rate|floatformat:2 }}%</span>
+                        </td>
+                        <td class="text-right py-3 px-4 text-sm font-bold text-green-600">${{ stats.revenue|floatformat:2 }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Top Products -->
+    {% if top_products %}
+    <div class="bg-white border border-gray-200 rounded-lg p-6">
+        <h3 class="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+            <svg class="w-6 h-6 text-amazon-orange" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5zm14 3c0 .6-.4 1-1 1H6c-.6 0-1-.4-1-1v-1h14v1z"/>
+            </svg>
+            Top Selling Products
+        </h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {% for product in top_products|slice:":6" %}
+            <div class="flex items-center gap-4 p-4 border border-gray-200 rounded-lg hover:shadow-md transition-shadow">
+                {% if product.image %}
+                <a href="{{ product.get_absolute_url }}">
+                    <img src="{{ product.image.url }}" 
+                         alt="{{ product.name }}"
+                         class="w-16 h-16 object-cover rounded-lg flex-shrink-0">
+                </a>
+                {% else %}
+                <div class="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    </svg>
+                </div>
+                {% endif %}
+                <div class="flex-1 min-w-0">
+                    <p class="font-semibold text-gray-900 truncate">{{ product.name }}</p>
+                    <p class="text-sm text-gray-500">{{ product.purchases_count }} sales</p>
+                </div>
+                <p class="text-lg font-bold text-amazon-blue">${{ product.price }}</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Performance Chart
+const performanceCtx = document.getElementById('performanceChart');
+if (performanceCtx) {
+    new Chart(performanceCtx, {
+        type: 'bar',
+        data: {
+            labels: {{ chart_data.labels|safe }}.map(label => {
+                const names = {
+                    'content_based': 'Content-Based',
+                    'user_based_cf': 'User-Based CF',
+                    'item_based_cf': 'Item-Based CF',
+                    'svd': 'SVD',
+                    'hybrid': 'Hybrid'
+                };
+                return names[label] || label;
+            }),
+            datasets: [
+                {
+                    label: 'CTR (%)',
+                    data: {{ chart_data.ctr|safe }},
+                    backgroundColor: 'rgba(59, 130, 246, 0.7)',
+                    borderColor: 'rgba(59, 130, 246, 1)',
+                    borderWidth: 1,
+                    borderRadius: 6
+                },
+                {
+                    label: 'Conversion Rate (%)',
+                    data: {{ chart_data.conversion_rate|safe }},
+                    backgroundColor: 'rgba(34, 197, 94, 0.7)',
+                    borderColor: 'rgba(34, 197, 94, 1)',
+                    borderWidth: 1,
+                    borderRadius: 6
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        color: 'rgba(0, 0, 0, 0.05)'
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false
+                    }
+                }
+            }
+        }
+    });
+}
+
+// Revenue Chart
+const revenueCtx = document.getElementById('revenueChart');
+if (revenueCtx) {
+    new Chart(revenueCtx, {
+        type: 'doughnut',
+        data: {
+            labels: {{ chart_data.labels|safe }}.map(label => {
+                const names = {
+                    'content_based': 'Content-Based',
+                    'user_based_cf': 'User-Based CF',
+                    'item_based_cf': 'Item-Based CF',
+                    'svd': 'SVD',
+                    'hybrid': 'Hybrid'
+                };
+                return names[label] || label;
+            }),
+            datasets: [{
+                data: {{ chart_data.revenue|safe }},
+                backgroundColor: [
+                    'rgba(59, 130, 246, 0.8)',
+                    'rgba(34, 197, 94, 0.8)',
+                    'rgba(251, 191, 36, 0.8)',
+                    'rgba(168, 85, 247, 0.8)',
+                    'rgba(239, 68, 68, 0.8)'
+                ],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        padding: 16,
+                        usePointStyle: true
+                    }
+                }
+            },
+            cutout: '60%'
+        }
+    });
+}
+
+function updateDashboard(days) {
+    window.location.href = '?days=' + days;
+}
+</script>
+{% endblock %}

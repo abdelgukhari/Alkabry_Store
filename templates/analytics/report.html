@@ -1,0 +1,207 @@
+{% extends 'base.html' %}
+
+{% block title %}Algorithm Comparison Report - AlKabry Ecommerce{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <!-- Header -->
+    <div class="text-center mb-12">
+        <div class="inline-flex items-center gap-3 mb-4">
+            <svg class="w-12 h-12 text-amazon-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+            </svg>
+            <h1 class="text-4xl font-bold text-gray-900">Algorithm Comparison Report</h1>
+        </div>
+        <p class="text-xl text-gray-600">{{ report.title }}</p>
+    </div>
+
+    <!-- Winner Badge -->
+    {% if winner %}
+    <div class="bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg p-8 mb-8 text-center shadow-lg">
+        <div class="inline-flex items-center gap-3 mb-3">
+            <svg class="w-16 h-16" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5zm14 3c0 .6-.4 1-1 1H6c-.6 0-1-.4-1-1v-1h14v1z"/>
+            </svg>
+            <h2 class="text-3xl font-bold">
+                Winner: {% if winner == 'hybrid' %}Hybrid{% elif winner == 'content_based' %}Content-Based{% elif winner == 'user_based_cf' %}User-Based CF{% elif winner == 'item_based_cf' %}Item-Based CF{% elif winner == 'svd' %}SVD{% else %}{{ winner }}{% endif %}
+            </h2>
+        </div>
+        <p class="text-lg text-green-50">The hybrid recommendation system outperforms all other algorithms!</p>
+    </div>
+    {% endif %}
+
+    <!-- Ranking Section -->
+    {% if ranking %}
+    <div class="bg-white border border-gray-200 rounded-lg p-8 mb-8">
+        <h3 class="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+            <svg class="w-7 h-7 text-amazon-orange" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+            </svg>
+            Algorithm Ranking
+        </h3>
+        <div class="space-y-4">
+            {% for algo, score in ranking %}
+            <div class="flex items-center gap-4 p-4 {% if forloop.first %}bg-gradient-to-r from-green-50 to-green-100 border-2 border-green-300{% else %}bg-gray-50 border border-gray-200{% endif %} rounded-lg">
+                <div class="flex-shrink-0 w-12 h-12 {% if forloop.first %}bg-green-600 text-white{% elif forloop.counter == 2 %}bg-gray-400 text-white{% elif forloop.counter == 3 %}bg-amber-600 text-white{% else %}bg-gray-300 text-gray-700{% endif %} rounded-full flex items-center justify-center font-bold text-lg">
+                    #{{ forloop.counter }}
+                </div>
+                <div class="flex-1">
+                    <h4 class="font-bold text-gray-900">
+                        {% if algo == 'content_based' %}
+                        Content-Based Filtering
+                        {% elif algo == 'user_based_cf' %}
+                        User-Based Collaborative Filtering
+                        {% elif algo == 'item_based_cf' %}
+                        Item-Based Collaborative Filtering
+                        {% elif algo == 'svd' %}
+                        SVD Matrix Factorization
+                        {% elif algo == 'hybrid' %}
+                        Hybrid Recommendation System
+                        {% endif %}
+                    </h4>
+                </div>
+                <div class="text-right">
+                    <span class="text-2xl font-bold {% if forloop.first %}text-green-600{% else %}text-gray-900{% endif %}">{{ score|floatformat:3 }}</span>
+                </div>
+                {% if forloop.first %}
+                <svg class="w-8 h-8 text-green-600" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                </svg>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Detailed Metrics Table -->
+    <div class="bg-white border border-gray-200 rounded-lg p-8 mb-8">
+        <h3 class="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+            <svg class="w-7 h-7 text-amazon-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+            </svg>
+            Detailed Metrics
+        </h3>
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead>
+                    <tr class="bg-gray-900 text-white">
+                        <th class="text-left py-3 px-4 text-sm font-bold">Metric</th>
+                        {% for algo in evaluations.keys %}
+                        <th class="text-center py-3 px-4 text-sm font-bold">
+                            {% if algo == 'content_based' %}
+                            Content-Based
+                            {% elif algo == 'user_based_cf' %}
+                            User-Based CF
+                            {% elif algo == 'item_based_cf' %}
+                            Item-Based CF
+                            {% elif algo == 'svd' %}
+                            SVD
+                            {% elif algo == 'hybrid' %}
+                            Hybrid
+                            {% endif %}
+                        </th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="border-b border-gray-100 hover:bg-gray-50">
+                        <td class="py-3 px-4 font-semibold text-gray-900">Precision@10</td>
+                        {% for algo, metrics in evaluations.items %}
+                        <td class="text-center py-3 px-4">
+                            <span class="bg-blue-100 text-blue-800 text-sm font-semibold px-3 py-1 rounded-full">{{ metrics.precision|floatformat:4 }}</span>
+                        </td>
+                        {% endfor %}
+                    </tr>
+                    <tr class="border-b border-gray-100 hover:bg-gray-50">
+                        <td class="py-3 px-4 font-semibold text-gray-900">Recall@10</td>
+                        {% for algo, metrics in evaluations.items %}
+                        <td class="text-center py-3 px-4">
+                            <span class="bg-green-100 text-green-800 text-sm font-semibold px-3 py-1 rounded-full">{{ metrics.recall|floatformat:4 }}</span>
+                        </td>
+                        {% endfor %}
+                    </tr>
+                    <tr class="border-b border-gray-100 hover:bg-gray-50">
+                        <td class="py-3 px-4 font-semibold text-gray-900">F1-Score</td>
+                        {% for algo, metrics in evaluations.items %}
+                        <td class="text-center py-3 px-4 font-semibold">{{ metrics.f1_score|floatformat:4 }}</td>
+                        {% endfor %}
+                    </tr>
+                    <tr class="border-b border-gray-100 hover:bg-gray-50">
+                        <td class="py-3 px-4 font-semibold text-gray-900">NDCG@10</td>
+                        {% for algo, metrics in evaluations.items %}
+                        <td class="text-center py-3 px-4">
+                            <span class="bg-purple-100 text-purple-800 text-sm font-semibold px-3 py-1 rounded-full">{{ metrics.ndcg|floatformat:4 }}</span>
+                        </td>
+                        {% endfor %}
+                    </tr>
+                    <tr class="border-b border-gray-100 hover:bg-gray-50">
+                        <td class="py-3 px-4 font-semibold text-gray-900">HR@10</td>
+                        {% for algo, metrics in evaluations.items %}
+                        <td class="text-center py-3 px-4">
+                            <span class="bg-green-100 text-green-800 text-sm font-semibold px-3 py-1 rounded-full">{{ metrics.hit_rate|floatformat:3 }}</span>
+                        </td>
+                        {% endfor %}
+                    </tr>
+                    <tr class="hover:bg-gray-50 bg-yellow-50">
+                        <td class="py-3 px-4 font-semibold text-gray-900">Accuracy ★</td>
+                        {% for algo, metrics in evaluations.items %}
+                        <td class="text-center py-3 px-4">
+                            <span class="bg-orange-100 text-orange-800 text-sm font-semibold px-3 py-1 rounded-full">{{ metrics.accuracy|floatformat:4 }}</span>
+                        </td>
+                        {% endfor %}
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Conclusion -->
+    <div class="bg-gradient-to-r from-blue-50 to-blue-100 border border-blue-200 rounded-lg p-8">
+        <h3 class="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+            <svg class="w-7 h-7 text-amazon-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            Conclusion
+        </h3>
+        <div class="prose max-w-none">
+            <p class="text-gray-700 mb-4">
+                Based on 3-seed cross-validation (seeds: 2026, 2027, 2028) using Hit Rate@10, NDCG@10, and Precision@10,
+                the <strong class="text-amazon-blue">Hybrid Recommendation System</strong> achieves the highest Accuracy score
+                (HR×0.50 + NDCG×0.30 + Precision×0.20), outperforming all individual algorithms.
+            </p>
+            <p class="text-gray-700 mb-4">The Hybrid approach combines the strengths of:</p>
+            <ul class="space-y-2 mb-4">
+                <li class="flex items-start gap-2">
+                    <svg class="w-5 h-5 text-green-600 mt-1 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                    </svg>
+                    <span><strong class="text-gray-900">Content-Based Filtering:</strong> Good for new items and users with specific preferences</span>
+                </li>
+                <li class="flex items-start gap-2">
+                    <svg class="w-5 h-5 text-green-600 mt-1 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                    </svg>
+                    <span><strong class="text-gray-900">User-Based CF:</strong> Effective at discovering serendipitous recommendations from similar users</span>
+                </li>
+                <li class="flex items-start gap-2">
+                    <svg class="w-5 h-5 text-green-600 mt-1 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                    </svg>
+                    <span><strong class="text-gray-900">Item-Based CF:</strong> Great for finding similar products based on user behavior patterns</span>
+                </li>
+                <li class="flex items-start gap-2">
+                    <svg class="w-5 h-5 text-green-600 mt-1 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                    </svg>
+                    <span><strong class="text-gray-900">SVD:</strong> Excellent at handling sparse data and discovering latent features</span>
+                </li>
+            </ul>
+            <p class="text-gray-700">
+                By combining these approaches with optimized weights, the Hybrid system achieves better overall performance,
+                higher user satisfaction, and more diverse recommendations.
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

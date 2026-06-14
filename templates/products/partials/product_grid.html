@@ -1,0 +1,18 @@
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    {% for product in page_obj %}
+    <div>
+        {% include 'products/partials/product_card.html' with product=product %}
+    </div>
+    {% empty %}
+    <div class="col-span-full text-center py-12">
+        <svg class="w-20 h-20 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/>
+        </svg>
+        <h4 class="text-lg font-medium text-gray-900 mb-2">No products found</h4>
+        <p class="text-gray-500 mb-4">Try adjusting your filters</p>
+        <a href="{% url 'products:list' %}" class="bg-amazon-yellow hover:bg-amazon-yellow/90 text-gray-900 font-medium py-2 px-6 rounded-full transition-colors">
+            View All Products
+        </a>
+    </div>
+    {% endfor %}
+</div>

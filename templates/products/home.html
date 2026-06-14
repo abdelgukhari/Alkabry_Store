@@ -1,0 +1,163 @@
+{% extends 'base.html' %}
+
+{% block title %}Home - Kabbary Store | Recommendation System Comparison{% endblock %}
+
+{% block content %}
+<!-- Hero Section (Amazon-style banner) -->
+{% if user.is_authenticated %}
+<section class="bg-gradient-to-r from-amazon-light to-amazon-dark text-white py-12">
+    <div class="container mx-auto px-4 text-center">
+        <h1 class="text-4xl md:text-5xl font-bold mb-4">
+            <svg class="w-12 h-12 inline-block mr-2" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+            </svg>
+            Welcome back, {{ user.first_name|default:user.email }}!
+        </h1>
+        <p class="text-lg md:text-xl mb-6 text-gray-200">Discover personalized recommendations powered by AI</p>
+        <div class="flex flex-wrap justify-center gap-4">
+            <a href="{% url 'products:list' %}" class="bg-amazon-yellow hover:bg-amazon-yellow/90 text-gray-900 font-bold py-3 px-8 rounded-full transition-colors">
+                <svg class="w-5 h-5 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/>
+                </svg>
+                Browse All Products
+            </a>
+            <a href="{% url 'accounts:dashboard' %}" class="bg-white hover:bg-gray-100 text-gray-900 font-bold py-3 px-8 rounded-full transition-colors">
+                <svg class="w-5 h-5 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+                </svg>
+                Your Dashboard
+            </a>
+        </div>
+    </div>
+</section>
+{% else %}
+<section class="bg-gradient-to-r from-amazon-light to-amazon-dark text-white py-16">
+    <div class="container mx-auto px-4 text-center">
+        <h1 class="text-4xl md:text-6xl font-bold mb-6">
+            <svg class="w-16 h-16 inline-block mr-2" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+            </svg>
+            Welcome to AlKabry Ecommerce
+        </h1>
+        <p class="text-xl md:text-2xl mb-8 text-gray-200">Discover products through 5 different recommendation algorithms</p>
+        <div class="flex flex-wrap justify-center gap-4">
+            <a href="{% url 'products:list' %}" class="bg-amazon-yellow hover:bg-amazon-yellow/90 text-gray-900 font-bold py-3 px-8 rounded-full transition-colors">
+                <svg class="w-5 h-5 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/>
+                </svg>
+                Browse All Products
+            </a>
+            <a href="{% url 'accounts:login' %}" class="bg-white hover:bg-gray-100 text-gray-900 font-bold py-3 px-8 rounded-full transition-colors">
+                Sign In to Get Personalized Recommendations
+            </a>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Categories Section -->
+{% if categories %}
+<section class="container mx-auto px-4 py-8 -mt-8">
+    <div class="bg-white rounded-lg shadow-lg p-6">
+        <h2 class="text-2xl font-bold text-gray-900 mb-6">Browse Fashion Categories</h2>
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+            {% for category in categories %}
+            <a href="{{ category.get_absolute_url }}" class="group block">
+                <div class="bg-gray-50 rounded-lg p-4 text-center hover:shadow-md transition-all group-hover:scale-105">
+                    {% if category.image %}
+                    <img src="{{ category.image.url }}" 
+                         class="w-full h-20 object-cover rounded-lg mb-3" 
+                         alt="{{ category.name }}">
+                    {% else %}
+                    <div class="w-20 h-20 mx-auto bg-white rounded-lg flex items-center justify-center mb-3">
+                        <svg class="w-10 h-10 text-amazon-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/>
+                        </svg>
+                    </div>
+                    {% endif %}
+                    <h3 class="font-semibold text-gray-900 text-sm mb-1">{{ category.name }}</h3>
+                    <p class="text-xs text-gray-500">{{ category.product_count }} products</p>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Recommended Products Section -->
+{% if recommended_products %}
+<section class="container mx-auto px-4 py-8">
+    <div class="bg-white rounded-lg shadow-sm p-6">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-2xl font-bold text-gray-900 flex items-center gap-2">
+                <svg class="w-7 h-7 text-amazon-orange" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                </svg>
+                Recommended For You
+            </h2>
+            {% if user.is_authenticated %}
+            <span class="bg-amazon-blue text-white text-xs px-3 py-1 rounded-full">Hybrid Algorithm</span>
+            {% endif %}
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {% for product in recommended_products %}
+            <div>
+                {% include 'products/partials/product_card.html' with product=product %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Featured Products Section -->
+{% if featured_products %}
+<section class="container mx-auto px-4 py-8">
+    <div class="bg-white rounded-lg shadow-sm p-6">
+        <h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+            <svg class="w-7 h-7 text-amazon-orange" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5zm14 3c0 .6-.4 1-1 1H6c-.6 0-1-.4-1-1v-1h14v1z"/>
+            </svg>
+            Featured Products
+        </h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {% for product in featured_products %}
+            <div>
+                {% include 'products/partials/product_card.html' with product=product %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Latest Products Section -->
+{% if latest_products %}
+<section class="container mx-auto px-4 py-8">
+    <div class="bg-white rounded-lg shadow-sm p-6">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-2xl font-bold text-gray-900 flex items-center gap-2">
+                <svg class="w-7 h-7 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                New Arrivals
+            </h2>
+            <a href="{% url 'products:list' %}" class="text-amazon-blue hover:text-amazon-blue/80 font-medium hover:underline">
+                View All
+                <svg class="w-4 h-4 inline-block ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                </svg>
+            </a>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {% for product in latest_products %}
+            <div>
+                {% include 'products/partials/product_card.html' with product=product %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+{% endblock %}

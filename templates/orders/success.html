@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+
+{% block title %}Order Success - AlKabry Ecommerce{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-12">
+    <div class="max-w-3xl mx-auto">
+        <!-- Success Icon -->
+        <div class="text-center mb-8">
+            <div class="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <svg class="w-16 h-16 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+            </div>
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">Order Placed Successfully!</h1>
+            <p class="text-lg text-gray-600">
+                Thank you for your purchase. Your order has been received and is being processed.
+            </p>
+        </div>
+
+        <!-- Order Details Card -->
+        <div class="bg-white border border-gray-200 rounded-lg p-8 mb-6">
+            <div class="text-center mb-6 pb-6 border-b border-gray-200">
+                <h2 class="text-2xl font-bold text-gray-900 mb-2">Order #{{ order.order_number }}</h2>
+                <div class="flex items-center justify-center gap-4 mt-3">
+                    <span class="text-2xl font-bold text-gray-900">${{ order.total }}</span>
+                    <span class="inline-block px-4 py-2 bg-green-100 text-green-800 rounded-full font-semibold">
+                        {{ order.get_status_display }}
+                    </span>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Shipping Address -->
+                <div class="bg-gray-50 p-5 rounded-lg">
+                    <div class="flex items-center gap-2 mb-3">
+                        <svg class="w-6 h-6 text-amazon-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.65 6.95a7.996 7.996 0 00-5.356-2.071c-1.035 0-2.024.228-2.924.616M12 3v1m0 16v1m-8-8H3m2.356 2.356l-.707.707M20 12h1m-2.356-2.356l.707-.707M12 13a3 3 0 100-6 3 3 0 000 6z"/>
+                        </svg>
+                        <h3 class="font-bold text-gray-900">Shipping Address</h3>
+                    </div>
+                    <p class="text-sm text-gray-700">
+                        {{ order.shipping_address }}<br>
+                        {{ order.shipping_city }}, {{ order.shipping_country }} {{ order.shipping_zip_code }}
+                    </p>
+                </div>
+
+                <!-- Payment Method -->
+                <div class="bg-gray-50 p-5 rounded-lg">
+                    <div class="flex items-center gap-2 mb-3">
+                        <svg class="w-6 h-6 text-amazon-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+                        </svg>
+                        <h3 class="font-bold text-gray-900">Payment Method</h3>
+                    </div>
+                    <p class="text-sm text-gray-700 font-medium">
+                        {{ order.get_payment_method_display|default:"Cash on Delivery" }}
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- What's Next Section -->
+        <div class="bg-white border border-gray-200 rounded-lg p-8 mb-6">
+            <h3 class="text-xl font-bold text-gray-900 mb-4">What's Next?</h3>
+            <div class="space-y-4">
+                <div class="flex items-start gap-3">
+                    <div class="w-8 h-8 bg-amazon-yellow rounded-full flex items-center justify-center flex-shrink-0 font-bold text-gray-900 text-sm">1</div>
+                    <div>
+                        <p class="font-semibold text-gray-900">Order Confirmation</p>
+                        <p class="text-sm text-gray-600">You'll receive an email confirmation shortly.</p>
+                    </div>
+                </div>
+                <div class="flex items-start gap-3">
+                    <div class="w-8 h-8 bg-amazon-yellow rounded-full flex items-center justify-center flex-shrink-0 font-bold text-gray-900 text-sm">2</div>
+                    <div>
+                        <p class="font-semibold text-gray-900">Processing</p>
+                        <p class="text-sm text-gray-600">We'll prepare your order for shipment.</p>
+                    </div>
+                </div>
+                <div class="flex items-start gap-3">
+                    <div class="w-8 h-8 bg-amazon-yellow rounded-full flex items-center justify-center flex-shrink-0 font-bold text-gray-900 text-sm">3</div>
+                    <div>
+                        <p class="font-semibold text-gray-900">Shipping</p>
+                        <p class="text-sm text-gray-600">Your order will be on its way to you.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex flex-wrap gap-4 justify-center">
+            <a href="{% url 'accounts:order_history' %}" 
+               class="bg-white border border-gray-300 hover:bg-gray-50 text-gray-900 font-bold py-3 px-8 rounded-full transition-colors">
+                View My Orders
+            </a>
+            <a href="{% url 'products:list' %}" 
+               class="bg-amazon-yellow hover:bg-amazon-yellow/90 text-gray-900 font-bold py-3 px-8 rounded-full transition-colors">
+                Continue Shopping
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

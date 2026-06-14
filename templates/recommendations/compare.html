@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+
+{% block title %}Compare Algorithms - AlKabry Ecommerce{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900 mb-2 flex items-center gap-2">
+            <svg class="w-8 h-8 text-amazon-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/>
+            </svg>
+            Algorithm Comparison
+        </h1>
+        <p class="text-gray-600">See how each recommendation algorithm performs side-by-side</p>
+    </div>
+
+    {% if user.is_authenticated %}
+    <div class="grid grid-cols-1 md:grid-cols-5 gap-6">
+        {% for algo_name, algo_data in results.items %}
+        <div class="bg-white border-2 {% if algo_name == 'hybrid' %}border-red-300 shadow-lg{% else %}border-gray-200{% endif %} rounded-lg overflow-hidden hover:shadow-xl transition-shadow">
+            <!-- Algorithm Header -->
+            <div class="{% if algo_name == 'hybrid' %}bg-gradient-to-r from-red-500 to-red-600{% elif algo_name == 'content_based' %}bg-gradient-to-r from-blue-500 to-blue-600{% elif algo_name == 'user_based_cf' %}bg-gradient-to-r from-green-500 to-green-600{% elif algo_name == 'item_based_cf' %}bg-gradient-to-r from-yellow-500 to-yellow-600{% elif algo_name == 'svd' %}bg-gradient-to-r from-purple-500 to-purple-600{% endif %} text-white p-4">
+                <div class="flex items-center gap-2 mb-2">
+                    {% if algo_name == 'content_based' %}
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
+                    </svg>
+                    {% elif algo_name == 'user_based_cf' %}
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    </svg>
+                    {% elif algo_name == 'item_based_cf' %}
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                    </svg>
+                    {% elif algo_name == 'svd' %}
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4"/>
+                    </svg>
+                    {% elif algo_name == 'hybrid' %}
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                    </svg>
+                    {% endif %}
+                    <h3 class="font-bold text-sm">
+                        {% if algo_name == 'content_based' %}
+                        Content-Based
+                        {% elif algo_name == 'user_based_cf' %}
+                        User-Based CF
+                        {% elif algo_name == 'item_based_cf' %}
+                        Item-Based CF
+                        {% elif algo_name == 'svd' %}
+                        SVD
+                        {% elif algo_name == 'hybrid' %}
+                        Hybrid
+                        {% endif %}
+                    </h3>
+                </div>
+                <p class="text-xs opacity-90">{{ algo_data.count }} recommendations</p>
+            </div>
+
+            <!-- Recommendations List -->
+            <div class="p-4">
+                {% if algo_data.recommendations %}
+                <div class="space-y-3">
+                    {% for product in algo_data.recommendations|slice:":5" %}
+                    <a href="{{ product.get_absolute_url }}" class="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-lg transition-colors group">
+                        {% if product.image %}
+                        <img src="{{ product.image.url }}" 
+                             alt="{{ product.name }}"
+                             class="w-12 h-12 object-cover rounded flex-shrink-0 group-hover:shadow-md transition-shadow">
+                        {% else %}
+                        <div class="w-12 h-12 bg-gray-200 rounded flex items-center justify-center flex-shrink-0">
+                            <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                            </svg>
+                        </div>
+                        {% endif %}
+                        <div class="flex-1 min-w-0">
+                            <p class="text-xs font-medium text-gray-900 truncate group-hover:text-amazon-blue transition-colors">{{ product.name|truncatechars:30 }}</p>
+                            <p class="text-sm font-bold text-green-600">${{ product.price }}</p>
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center py-8">
+                    <svg class="w-12 h-12 mx-auto text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/>
+                    </svg>
+                    <p class="text-sm text-gray-500">Not enough data</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="bg-white border border-gray-200 rounded-lg text-center py-16">
+        <svg class="w-24 h-24 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+        </svg>
+        <h3 class="text-xl font-bold text-gray-900 mb-2">Login Required</h3>
+        <p class="text-gray-500 mb-6">Please login to compare recommendation algorithms.</p>
+        <a href="{% url 'accounts:login' %}" 
+           class="bg-amazon-yellow hover:bg-amazon-yellow/90 text-gray-900 font-bold py-3 px-8 rounded-full transition-colors inline-block">
+            Sign In
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

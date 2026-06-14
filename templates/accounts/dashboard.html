@@ -1,0 +1,268 @@
+{% extends 'base.html' %}
+
+{% block title %}Your Dashboard - AlKabry Ecommerce{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <!-- Welcome Header -->
+    <div class="bg-gradient-to-r from-amazon-light to-amazon-dark text-white rounded-lg p-6 mb-8">
+        <div class="flex flex-wrap items-center justify-between gap-4">
+            <div>
+                <h1 class="text-3xl font-bold mb-2">Welcome back, {{ user.first_name|default:user.email }}!</h1>
+                <p class="text-gray-200">Manage your orders, track deliveries, and discover personalized recommendations.</p>
+            </div>
+            <div class="flex gap-3">
+                <a href="{% url 'products:list' %}" class="bg-amazon-yellow hover:bg-amazon-yellow/90 text-gray-900 font-bold py-2 px-6 rounded-full transition-colors">
+                    Browse Products
+                </a>
+                <a href="{% url 'accounts:profile' %}" class="bg-white/20 hover:bg-white/30 text-white font-bold py-2 px-6 rounded-full transition-colors">
+                    Edit Profile
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <!-- Total Orders -->
+        <div class="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow">
+            <div class="flex items-center justify-between mb-3">
+                <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                    <svg class="w-7 h-7 text-amazon-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+                    </svg>
+                </div>
+            </div>
+            <h3 class="text-3xl font-bold text-gray-900 mb-1">{{ total_orders }}</h3>
+            <p class="text-gray-600 text-sm">Total Orders</p>
+        </div>
+
+        <!-- Total Spent -->
+        <div class="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow">
+            <div class="flex items-center justify-between mb-3">
+                <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                    <svg class="w-7 h-7 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                </div>
+            </div>
+            <h3 class="text-3xl font-bold text-gray-900 mb-1">${{ total_spent|floatformat:2 }}</h3>
+            <p class="text-gray-600 text-sm">Total Spent</p>
+        </div>
+
+        <!-- Pending Orders -->
+        <div class="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow">
+            <div class="flex items-center justify-between mb-3">
+                <div class="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center">
+                    <svg class="w-7 h-7 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                </div>
+            </div>
+            <h3 class="text-3xl font-bold text-gray-900 mb-1">{{ pending_orders }}</h3>
+            <p class="text-gray-600 text-sm">Pending Orders</p>
+        </div>
+
+        <!-- Recommendations -->
+        <div class="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow">
+            <div class="flex items-center justify-between mb-3">
+                <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
+                    <svg class="w-7 h-7 text-purple-600" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                    </svg>
+                </div>
+            </div>
+            <h3 class="text-3xl font-bold text-gray-900 mb-1">{{ recommended_products|length }}</h3>
+            <p class="text-gray-600 text-sm">Recommendations</p>
+        </div>
+    </div>
+
+    <!-- Main Content Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Left Column: Orders & Recommendations -->
+        <div class="lg:col-span-2 space-y-8">
+            <!-- Recent Orders -->
+            <div class="bg-white border border-gray-200 rounded-lg p-6">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-xl font-bold text-gray-900 flex items-center gap-2">
+                        <svg class="w-6 h-6 text-amazon-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+                        </svg>
+                        Recent Orders
+                    </h2>
+                    {% if total_orders > 5 %}
+                    <a href="{% url 'accounts:order_history' %}" class="text-amazon-blue hover:underline text-sm font-medium">View All</a>
+                    {% endif %}
+                </div>
+
+                {% if recent_orders %}
+                <div class="space-y-4">
+                    {% for order in recent_orders %}
+                    <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                        <div class="flex flex-wrap items-center justify-between gap-3 mb-3">
+                            <div>
+                                <span class="font-semibold text-gray-900">{{ order.order_number }}</span>
+                                <span class="text-sm text-gray-500 ml-3">{{ order.created_at|date:"M d, Y" }}</span>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <span class="text-lg font-bold text-gray-900">${{ order.total|floatformat:2 }}</span>
+                                {% if order.status == 'pending' %}
+                                <span class="bg-yellow-100 text-yellow-800 text-xs font-semibold px-2 py-1 rounded-full">Pending</span>
+                                {% elif order.status == 'processing' %}
+                                <span class="bg-blue-100 text-blue-800 text-xs font-semibold px-2 py-1 rounded-full">Processing</span>
+                                {% elif order.status == 'shipped' %}
+                                <span class="bg-purple-100 text-purple-800 text-xs font-semibold px-2 py-1 rounded-full">Shipped</span>
+                                {% elif order.status == 'delivered' %}
+                                <span class="bg-green-100 text-green-800 text-xs font-semibold px-2 py-1 rounded-full">Delivered</span>
+                                {% elif order.status == 'cancelled' %}
+                                <span class="bg-red-100 text-red-800 text-xs font-semibold px-2 py-1 rounded-full">Cancelled</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="flex flex-wrap items-center gap-4 text-sm text-gray-600">
+                            <div class="flex items-center gap-1">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                                </svg>
+                                <span>{{ order.item_count }} item{{ order.item_count|pluralize }}</span>
+                            </div>
+                            <div class="flex items-center gap-1">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+                                </svg>
+                                <span>{{ order.payment_method|title }}</span>
+                            </div>
+                            <div class="flex items-center gap-1">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                </svg>
+                                <span>{{ order.shipping_city }}, {{ order.shipping_country }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center py-8">
+                    <svg class="w-16 h-16 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+                    </svg>
+                    <p class="text-gray-500 mb-4">You haven't placed any orders yet.</p>
+                    <a href="{% url 'products:list' %}" class="bg-amazon-yellow hover:bg-amazon-yellow/90 text-gray-900 font-bold py-2 px-6 rounded-full transition-colors">
+                        Start Shopping
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Recommended For You -->
+            {% if recommended_products %}
+            <div class="bg-white border border-gray-200 rounded-lg p-6">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-xl font-bold text-gray-900 flex items-center gap-2">
+                        <svg class="w-6 h-6 text-amazon-orange" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                        </svg>
+                        Recommended For You
+                    </h2>
+                    <span class="bg-amazon-blue text-white text-xs px-3 py-1 rounded-full">Hybrid AI</span>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    {% for product in recommended_products %}
+                    <div>
+                        {% include 'products/partials/product_card.html' with product=product %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Recently Viewed -->
+            {% if recently_viewed %}
+            <div class="bg-white border border-gray-200 rounded-lg p-6">
+                <h2 class="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+                    <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    Recently Viewed
+                </h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {% for product in recently_viewed %}
+                    <div>
+                        {% include 'products/partials/product_card.html' with product=product %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Right Column: Quick Links & Top Picks -->
+        <div class="space-y-6">
+            <!-- Quick Actions -->
+            <div class="bg-white border border-gray-200 rounded-lg p-6">
+                <h3 class="text-lg font-bold text-gray-900 mb-4">Quick Actions</h3>
+                <div class="space-y-2">
+                    <a href="{% url 'accounts:order_history' %}" class="flex items-center gap-3 p-3 hover:bg-gray-50 rounded-lg transition-colors group">
+                        <svg class="w-5 h-5 text-amazon-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+                        </svg>
+                        <span class="text-gray-700 group-hover:text-amazon-blue">View All Orders</span>
+                    </a>
+                    <a href="{% url 'accounts:profile' %}" class="flex items-center gap-3 p-3 hover:bg-gray-50 rounded-lg transition-colors group">
+                        <svg class="w-5 h-5 text-amazon-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                        </svg>
+                        <span class="text-gray-700 group-hover:text-amazon-blue">Edit Profile</span>
+                    </a>
+                    <a href="{% url 'products:list' %}" class="flex items-center gap-3 p-3 hover:bg-gray-50 rounded-lg transition-colors group">
+                        <svg class="w-5 h-5 text-amazon-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2 2v6a2 2 0 012 2h2a2 2 0 012-2V8a2 2 0 01-2-2H6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/>
+                        </svg>
+                        <span class="text-gray-700 group-hover:text-amazon-blue">Browse Products</span>
+                    </a>
+                    <a href="{% url 'cart:detail' %}" class="flex items-center gap-3 p-3 hover:bg-gray-50 rounded-lg transition-colors group">
+                        <svg class="w-5 h-5 text-amazon-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
+                        </svg>
+                        <span class="text-gray-700 group-hover:text-amazon-blue">Shopping Cart</span>
+                    </a>
+                    <a href="{% url 'accounts:logout' %}" class="flex items-center gap-3 p-3 hover:bg-red-50 rounded-lg transition-colors group">
+                        <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                        </svg>
+                        <span class="text-red-600 group-hover:text-red-700">Sign Out</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Top Picks For You -->
+            {% if top_products %}
+            <div class="bg-white border border-gray-200 rounded-lg p-6">
+                <h3 class="text-lg font-bold text-gray-900 mb-4">Your Top Picks</h3>
+                <div class="space-y-4">
+                    {% for product in top_products %}
+                    <a href="{{ product.get_absolute_url }}" class="flex items-center gap-3 hover:bg-gray-50 p-2 rounded-lg transition-colors">
+                        {% if product.image %}
+                        <img src="{{ product.image.url }}" alt="{{ product.name }}" class="w-12 h-12 object-cover rounded flex-shrink-0">
+                        {% else %}
+                        <div class="w-12 h-12 bg-gray-200 rounded flex items-center justify-center flex-shrink-0">
+                            <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                            </svg>
+                        </div>
+                        {% endif %}
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm font-medium text-gray-900 truncate">{{ product.name }}</p>
+                            <p class="text-xs text-gray-500">${{ product.price }}</p>
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
