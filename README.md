@@ -259,11 +259,12 @@ Al-kabry/
 ├── analytics/                   # Аналитика
 ├── chatbot/                     # Чат-ассистент
 ├── templates/                   # HTML-шаблоны
-├── static/                      # CSS/JS
+├── staticfiles/                 # Собранные статические файлы
 ├── data/
 │   └── fashion-product-images-small/
 │       └── styles.csv           # Данные Kaggle
-├── thesis_colab.ipynb           # Jupyter-ноутбук
+├── notebooks/
+│   └── results_summary_ru.ipynb # Jupyter-ноутбук
 ├── manage.py
 ├── requirements.txt
 └── .env
@@ -301,13 +302,13 @@ python manage.py compare_algorithms
 
 | Ноутбук | Назначение |
 |---------|-----------|
-| `thesis_colab.ipynb` | Реализация алгоритмов, вычисление метрик, кросс-валидация, визуализация |
+| `notebooks/results_summary_ru.ipynb` | Реализация алгоритмов, вычисление метрик, кросс-валидация, визуализация |
 
 Запуск:
 
 ```bash
 pip install jupyter
-jupyter notebook thesis_colab.ipynb
+jupyter notebook notebooks/results_summary_ru.ipynb
 ```
 
 ---
